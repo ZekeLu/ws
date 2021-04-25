@@ -336,18 +336,22 @@ func ceilPowerOfTwo(n int) int {
 	return n
 }
 
+// Grow grows Writer's internal buffer capacity to guarantee space for another
+// n bytes of _payload_ -- that is, frame header is not included in n.
 func (w *Writer) Grow(n int) {
+	// NOTE: we must respect the possibility of header reserved bytes grow.
 	var (
-		offset = len(w.raw) - len(w.buf)
-		size   = ceilPowerOfTwo(offset + w.n + n)
+		oldOffset = len(w.raw) - len(w.buf)
+		newOffset = headerSize(w.state, w.n+n)
+		size      = ceilPowerOfTwo(newOffset + w.n + n)
 	)
 	if size <= len(w.raw) {
 		panic("wsutil: buffer grow leads to its reduce")
 	}
 	p := make([]byte, size)
-	copy(p, w.raw[:offset+w.n])
+	copy(p[newOffset-oldOffset:], w.raw[:oldOffset+w.n])
 	w.raw = p
-	w.buf = w.raw[offset:]
+	w.buf = w.raw[newOffset:]
 }
 
 // WriteThrough writes data bypassing the buffer.
