@@ -45,14 +45,14 @@ func TestControlWriter(t *testing.T) {
 			exp:   ws.NewPingFrame([]byte("0123456789")),
 		},
 		{
-			size:  10 + reserve(server, 10),
+			size:  10 + headerSize(server, 10),
 			write: []byte("0123456789"),
 			state: server,
 			op:    ws.OpPing,
 			exp:   ws.NewPingFrame([]byte("0123456789")),
 		},
 		{
-			size:  10 + reserve(server, 10),
+			size:  10 + headerSize(server, 10),
 			write: []byte("0123456789a"),
 			state: server,
 			op:    ws.OpPing,

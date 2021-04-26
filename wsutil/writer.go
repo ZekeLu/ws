@@ -558,6 +558,11 @@ func writeFrame(w io.Writer, s ws.State, op ws.OpCode, fin bool, p []byte) error
 	return ws.WriteFrame(w, frame)
 }
 
+// reserve returns number of bytes needed to encode header of a frame with
+// given state and the length of the raw buffer.
+//
+// Do not assume that the returned value is the same as that of headerSize,
+// because the actual payload could be just a little part of the raw buffer.
 func reserve(state ws.State, n int) (offset int) {
 	var mask int
 	if state.ClientSide() {
@@ -575,7 +580,7 @@ func reserve(state ws.State, n int) (offset int) {
 }
 
 // headerSize returns number of bytes needed to encode header of a frame with
-// given state and length.
+// given state and length of the payload.
 func headerSize(s ws.State, n int) int {
 	return ws.HeaderSize(ws.Header{
 		Length: int64(n),
